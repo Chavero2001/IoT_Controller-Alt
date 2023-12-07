@@ -1,0 +1,182 @@
+[
+    {
+        "conditions": [
+            {
+                "topic": "water/temp",
+                "comparison": "<",
+                "value": 25
+            }
+        ],
+        "results": [
+            {
+                "topic": "tank/heater",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/temp",
+                "comparison": ">=",
+                "value": 25
+            }
+        ],
+        "results": [
+            {
+                "topic": "tank/heater",
+                "value": "off"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/quality",
+                "comparison": ">",
+                "value": 50
+            }
+        ],
+        "results": [
+            {
+                "topic": "quality/warning",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/quality",
+                "comparison": "<=",
+                "value": 50
+            }
+        ],
+        "results": [
+            {
+                "topic": "quality/warning",
+                "value": "off"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": "<",
+                "value": 10
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningh",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": ">=",
+                "value": 3
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningh",
+                "value": "off"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": ">=",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": "<",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "off"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": ">=",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/",
+                "comparison": "<",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "off"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": ">=",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "on"
+            }
+        ]
+    },
+    {
+        "conditions": [
+            {
+                "topic": "water/level",
+                "comparison": "<",
+                "value": 20
+            }
+        ],
+        "results": [
+            {
+                "topic": "level/warningl",
+                "value": "off"
+            }
+        ]
+    }
+]
