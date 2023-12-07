@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #result {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+    /* Navigation bar */
+    ul {
+  		list-style-type: none;
+  		margin: 0;
+  		padding: 0;
+  		overflow: hidden;
+  		background-color: #38444d;
+        height: 46px;
+	}
+
+	li {
+  		float: left;
+	}
+		li a:hover{
+  		background-color: grey;
+		}
+	li a {
+  		display: inline-block;
+  		color: white;
+  		text-align: center;
+  		padding: 14px 25px;
+  		text-decoration: none;
+	}
+     </style>
+    <title>System configuration</title>
+</head>
+<body>
+    <h1>Configure the system</h1>
+
+       <ul>
+            <li><a href='/'>Home</a></li>
+  	    <li><a href='/configure'>Configure the system</a></li>
+
+           <li style="float:right"> <a href='/logout'>Logout</a></li>
+        </ul>
+    <p>Once you have modified the system configuration, it is important to <a href='/restart'>restart the IoT Controller</a> for the configuraton to take effect.</p>
+     
+    <h2>Add a configuration</h2>
+
+    <form action='/add_configuration' method='post'><!--sends data like an attachment in an email -->
+        <fieldset><legend>CONDITIONS</legend>
+        <div id="conditions">
+        </div>
+        <a href='Javascript:addCondition("conditions")'>more</a>
+        </fieldset>
+        <fieldset><legend>RESULTS</legend>
+        <div id='results'>
+        </div>
+        <a href='Javascript:addResult("results")'>more</a>
+        </fieldset> 
+       <input type='submit' value='Send!' />
+    </form>
+
+    <h2>Delete a configuration</h2>
+
+    <form action='/delete_configuration' method='post'>
+        <select name='rule_to_delete'>
+            {% for index in range(config|length) %}
+                <option value='{{ index }}'>{{ config[index]|jsonstring }}</option>
+            {% endfor %}
+        </select>
+        <input type='submit' value='Delete configuration' />
+    </form>
+
+    <h2>Edit a configuration</h2>
+
+    <form action='/edit_configuration' method='post' id='editForm'>
+        <select name='rule_to_edit' id='ruleSelect' onchange='loadRuleFields()'>
+            {% for index in range(config|length) %}
+                <option value='{{ index }}'>{{ config[index]|jsonstring }}</option>
+            {% endfor %}
+        </select>
+
+        <fieldset><legend>CONDITIONS</legend>
+        <div><div id="conditionsEdit"></div><a href='Javascript:addCondition("conditionsEdit")'>more</a></div>
+        </fieldset>
+        <fieldset><legend>RESULTS</legend>
+        <div><div id="resultsEdit"></div><a href='Javascript:addResult("resultsEdit")'>more</a></div>
+        </fieldset>
+    
+        <input type='submit' value='Modify configuration' />
+    </form>
+
+<script>
+    function loadRuleFields() {
+        var selectedIndex = document.getElementById('ruleSelect').selectedIndex;
+        var selectedOptionText = document.getElementById('ruleSelect').options[selectedIndex].text;
+
+        try {
+            var selectedRule = JSON.parse(selectedOptionText);
+
+            var conditionsDiv = document.getElementById('conditionsEdit');
+            conditionsDiv.innerHTML = ''; // Clear previous fields
+
+            var resultsDiv = document.getElementById('resultsEdit');
+            resultsDiv.innerHTML = ''; // Clear previous fields
+
+            // Load conditions
+            selectedRule.conditions.forEach(function (condition) {
+                addCondition(conditionsDiv, condition.topic, condition.comparison, condition.value);
+            });
+
+            // Load results
+            selectedRule.results.forEach(function (result) {
+                addResult(resultsDiv, result.topic, result.value);
+            });
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+        }
+    }
+
+    function addCondition(target, topic="", comparison="", value=""){
+        target = convertTarget(target);
+        var conditionDiv = document.createElement('div');
+        conditionDiv.innerHTML = `
+            <label>MQTT Topic:<input type="text" name="topic[]" value="${topic}" placeholder="Topic"></label>
+            <label>Comparison operator:<input type="text" name="comparison[]" value="${comparison}" placeholder=">, >=, <, etc."></label>
+            <label>Comparison value:<input type="text" name="value[]" value="${value}" placeholder="50"></label>
+            <a href="javascript:void(0);" onclick="removeParent(this)">Remove</a>
+        `;
+        target.appendChild(conditionDiv);
+    }
+
+    function addResult(target, topic="", value=""){
+        target = convertTarget(target);
+        var resultDiv = document.createElement('div');
+        resultDiv.innerHTML = `
+            <label>Result topic:<input type="text" name="result_topic[]" value="${topic}" placeholder="Topic"></label>
+            <label>Result value:<input type="text" name="result_value[]" value="${value}" placeholder="On!"></label>
+            <a href="javascript:void(0);" onclick="removeParent(this)">Remove</a>
+        `;
+        target.appendChild(resultDiv);
+    }
+
+    function convertTarget(target){
+        if((typeof target) === "string")
+            return document.getElementById(target);
+        else
+            return target;
+    }
+
+    function removeParent(child) {
+        var parentToRemove = child.parentNode;
+        parentToRemove.parentNode.removeChild(parentToRemove);
+    }
+    
+    addCondition("conditions");
+    addResult("results");   
+    // Trigger the function on page load if a rule is pre-selected
+    window.onload = loadRuleFields;
+</script>
+</body>
+</html>

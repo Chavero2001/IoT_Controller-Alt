@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 20px;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    a {
+        display: block;
+        margin-bottom: 20px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    div {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    input {
+        padding: 5px;
+        width: 200px;
+    }
+
+    button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #result {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+    /* Navigation bar */
+    ul {
+  		list-style-type: none;
+  		margin: 0;
+  		padding: 0;
+  		overflow: hidden;
+  		background-color: #38444d;
+        height: 46px;
+	}
+    button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #result {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+    /* Navigation bar */
+    ul {
+  		list-style-type: none;
+  		margin: 0;
+  		padding: 0;
+  		overflow: hidden;
+  		background-color: #38444d;
+        height: 46px;
+	}
+    button {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #result {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    canvas {
+        max-width: 100%;
+    }
+    /* Navigation bar */
+    ul {
+  		list-style-type: none;
+  		margin: 0;
+  		padding: 0;
+  		overflow: hidden;
+  		background-color: #38444d;
+        height: 46px;
+	}
+li {
+  		float: left;
+	}
+
+	li a, .dropbtn {
+  		display: inline-block;
+  		color: white;
+  		text-align: center;
+  		padding: 14px 25px;
+  		text-decoration: none;
+	}
+		li a:hover{
+  		background-color: grey;
+		}		
+    nav{
+    width: 100%;
+    height: 50px;
+  }
+</style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historian Data Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Home</h1>
+        	<ul>
+  				<li><a href='/'>Home</a></li>
+  				<li><a href='/configure'>Configure the system</a></li>
+  				<li style="float:right"><a href='/logout'>Logout</a></li>
+    				</div>
+  				</li>
+			</ul>
+            
+
+    </header>
+	<nav> </nxav><body>
+    <h1>Historian Data Viewer</h1>
+
+    <div>
+        <label for="topic">Enter MQTT Topic:</label>
+        <input type="text" id="topic" placeholder="Topic">
+        <!--<button onclick="getData()">Get Data</button>-->
+    </div>
+    <div id="result"></div>
+
+    <script>
+	setInterval(getData(), 1000);
+        function getData() {
+            const topic = document.getElementById("topic").value;
+            const url = `/historian?topic=${topic}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayData(data))
+                .catch(error => console.error(error));
+        }
+
+        function displayData(data) {
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = '';
+
+            if (data.length === 0) {
+                resultDiv.innerHTML = "No data found for the specified topic.";
+                return;
+            }
+
+           if (!isNaN(parseFloat(data[0].payload))) {
+                // Numeric data - Create an x-y plot
+                const timestamps = data.map(item => item.timestamp);
+                const values = data.map(item => item.payload);
+
+                // Use a plotting library like Chart.js
+                const canvas = document.createElement("canvas");
+                canvas.id = "chart";
+                resultDiv.appendChild(canvas);
+
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: timestamps,
+                        datasets: [
+                            {
+                                label: 'Value',
+                                data: values,
+                                borderColor: 'blue',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } else {
+                // Textual data - Create a table
+                const table = document.createElement("table");
+                table.classList.add("table");
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Value</th>
+                            <th>Topic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr>
+                                <td>${item.timestamp}</td>
+                                <td>${item.payload}</td>
+                                <td>${item.topic}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                resultDiv.appendChild(table);
+            }
+        }
+    </script>
+</body>
+</html>
